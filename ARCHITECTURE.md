@@ -126,6 +126,26 @@ GET /search?content_type=ocr   → 只搜屏幕文字
 GET /search?content_type=audio → 只搜音频转写
 ```
 
+### 语音转录服务（独立项目）
+
+- GitHub: https://github.com/jscmp4/openai-speech-to-text
+- 运行在: http://localhost:8080
+- 技术: Python + Flask + OpenAI gpt-4o-transcribe-diarize
+- 启动方式: Mac 双击 start.command / Windows 双击 start.bat
+
+同步 API:
+POST /api/transcribe
+- Header: Authorization: Bearer sk-你的key
+- Body: multipart file upload (字段名 file)
+- 返回 JSON:
+  {
+    "success": true,
+    "formatted_text": "带时间戳和说话人的文本",
+    "full_text": "纯文本",
+    "segments": [{"speaker": "...", "text": "...", "start": 0.0, "end": 5.2}],
+    "duration_seconds": 125.3
+  }
+
 ## 开发环境
 
 - Windows 11 + Mac（通过 Git 同步代码）

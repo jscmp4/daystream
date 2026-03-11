@@ -103,6 +103,24 @@ export function getDatesWithRecords(yearMonth: string): string[] {
   return rows.map(row => row.date);
 }
 
+/** 更新记录的 content 和 metadata */
+export function updateRecord(id: string, updates: { content?: string; metadata?: object }): Record | null {
+  const db = getDb();
+  const existing = getRecordById(id);
+  if (!existing) return null;
+
+  const newContent = updates.content ?? existing.content;
+  const newMetadata = updates.metadata
+    ? JSON.stringify({ ...(existing.metadata as any), ...updates.metadata })
+    : JSON.stringify(existing.metadata);
+
+  db.prepare(`
+    UPDATE records SET content = ?, metadata = ? WHERE id = ?
+  `).run(newContent, newMetadata, id);
+
+  return getRecordById(id)!;
+}
+
 /** 获取最近的记录 */
 export function getRecentRecords(limit: number = 20): Record[] {
   const db = getDb();

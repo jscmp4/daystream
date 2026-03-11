@@ -12,6 +12,7 @@ import {
   insertRecord,
 } from '../storage';
 import { importFile } from '../collectors/file-import';
+import { transcribeRecord } from '../processors/transcribe';
 import { syncFromScreenpipe, checkScreenpipeHealth } from '../collectors/screenpipe';
 
 const app = express();
@@ -83,6 +84,17 @@ app.post('/api/upload', upload.array('files'), (req, res) => {
     const record = insertRecord(recordInput);
     return record;
   });
+
+  // 对音频/视频文件异步触发转录
+  for (const record of results) {
+    if (record.media_type === 'audio' || record.media_type === 'video') {
+      if (record.raw_file_path) {
+        transcribeRecord(record.id, record.raw_file_path).catch(err => {
+          console.error(`转录失败 [${record.id}]:`, err.message);
+        });
+      }
+    }
+  }
 
   res.json({ imported: results.length, records: results });
 });
